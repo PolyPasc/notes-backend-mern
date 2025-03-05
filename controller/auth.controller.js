@@ -94,4 +94,30 @@ export const signin = async (req, res, next) => {
   }
 };
 
+export const getUser = async (req, res, next) => {
+  const { user } = req.user;
 
+  const isUser = await User.findOne({ _id: user._id });
+
+  if (!isUser) {
+    return res.status(401).json({
+      error: true,
+      message: "",
+    });
+  }
+
+  return res
+    .status(200)
+    .json({ error: false, user: { ...isUser }, message: "" });
+};
+
+export const signout = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      error: false,
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
