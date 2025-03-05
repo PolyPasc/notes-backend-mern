@@ -13,7 +13,7 @@ export const signup = async (req, res, next) => {
   if (!email) {
     return res.status(400).json({ error: true, message: "E-mail is required" });
   }
-  if (!Password) {
+  if (!password) {
     return res
       .status(400)
       .json({ error: true, message: "Password is required" });
@@ -22,7 +22,7 @@ export const signup = async (req, res, next) => {
   try {
     const isUserValid = await User.findOne({ email });
 
-    if (isValidUser) {
+    if (isUserValid) {
       return res
         .status(400)
         .json({ error: true, message: "User already exist" });
@@ -31,7 +31,7 @@ export const signup = async (req, res, next) => {
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
     const newUser = new User({
-      username,
+      fullName,
       email,
       password: hashedPassword,
     });
@@ -59,7 +59,7 @@ export const signin = async (req, res, next) => {
   if (!email) {
     return res.status(400).json({ error: true, message: "E-mail is required" });
   }
-  if (!Password) {
+  if (!password) {
     return res
       .status(400)
       .json({ error: true, message: "Password is required" });
@@ -87,7 +87,6 @@ export const signin = async (req, res, next) => {
       token,
       email,
       message: "Login Successful!",
-      rest,
     });
   } catch (error) {
     next(error);
@@ -95,9 +94,9 @@ export const signin = async (req, res, next) => {
 };
 
 export const getUser = async (req, res, next) => {
-  const { user } = req.user;
+  const { id } = req.user;
 
-  const isUser = await User.findOne({ _id: user._id });
+  const isUser = await User.findOne({ _id: id });
 
   if (!isUser) {
     return res.status(401).json({
@@ -105,10 +104,11 @@ export const getUser = async (req, res, next) => {
       message: "",
     });
   }
-
-  return res
-    .status(200)
-    .json({ error: false, user: { ...isUser }, message: "" });
+  return res.status(200).json({
+    error: false,
+    user: { fullName: isUser.fullName, email: isUser.email },
+    message: "",
+  });
 };
 
 export const signout = async (req, res, next) => {
